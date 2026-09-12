@@ -1,0 +1,23 @@
+{
+    "ocean": {
+        "width": 30,
+        "height": 15
+    },
+    "coral": {
+        "reproduction_time": 5
+    },
+    "prey": {
+        "lifetime": 20,
+        "reproduction_time": 5
+    },
+    "predator": {
+        "lifetime": 30,
+        "reproduction_time": 8,
+        "feeding_time": 5
+    },
+    "simulation": {
+        "coral_counts" : 4,
+        "prey_counts" : 4,
+        "predator_counts" : 4
+    }
+}
