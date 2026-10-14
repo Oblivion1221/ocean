@@ -3,8 +3,9 @@
 
 #include <random>
 
-Coral::Coral(int reproduction_time)
+Coral::Coral(int reproduction_time, int lifetime)
     : reproduction_time_(reproduction_time)
+    , lifetime_(lifetime)
 {
 }
 
@@ -14,10 +15,14 @@ void Coral::update(Ocean& ocean)
 
     ++age_;
 
-    if (reproduction_time_ <= 0 || age_ < reproduction_time_)
+    if(age_>= lifetime_)
+    {
+        alive_ = false;
         return;
+    }
 
-    age_ = 0;
+    if (reproduction_time_ <= 0 || age_ % reproduction_time_ != 0)
+        return;
 
     const auto free = ocean.free_neighbors(x(), y());
     if (free.empty())
