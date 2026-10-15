@@ -11,8 +11,6 @@ Coral::Coral(int reproduction_time, int lifetime)
 
 void Coral::update(Ocean& ocean)
 {
-    // TODO: Add restriction for coral's lifetime
-
     ++age_;
 
     if(age_>= lifetime_)
@@ -28,6 +26,12 @@ void Coral::update(Ocean& ocean)
     if (free.empty())
         return;
 
-    const auto [nx, ny] = free.front();
-    ocean.add_object(std::make_unique<Coral>(reproduction_time_), nx, ny);
+    static std::mt19937 gen (std::random_device{}());
+
+    std::uniform_int_distribution<size_t> dist(0, free.size() - 1);
+
+    size_t random_index = dist(gen);
+
+    const auto [nx, ny] = free[random_index];
+    ocean.add_object(std::make_unique<Coral>(reproduction_time_, lifetime_), nx, ny);
 }
