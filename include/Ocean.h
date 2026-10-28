@@ -14,6 +14,7 @@ class Ocean
 public:
     // TODO: add constructor config
     // explicit Ocean(const OceanConfig &cfg);
+    
     Ocean(int width, int height);
 
     int width() const { return width_; }

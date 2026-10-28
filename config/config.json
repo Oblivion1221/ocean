@@ -4,6 +4,7 @@
         "height": 15
     },
     "coral": {
+        "lifetime": 20,
         "reproduction_time": 5
     },
     "prey": {

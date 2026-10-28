@@ -5,12 +5,14 @@
 class Coral : public Object
 {
 public:
-    explicit Coral(int reproduction_time);
+    explicit Coral(int lifetime, int reproduction_time);
 
     void update(Ocean& ocean) override;
     char symbol() const override { return 'C'; }
 
 private:
+    int lifetime_;
     int reproduction_time_;
     int age_ = 0;
+    bool alive_ = true;
 };

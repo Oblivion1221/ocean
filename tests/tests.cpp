@@ -69,24 +69,95 @@ TEST(PreyTest, DiesAfterLifetime)
     EXPECT_TRUE(ocean.cell(2, 2).empty());
 }
 
-TEST(CoralTest, Reproduces)
+TEST(CoralTest, DiesWhenLifetimeReached)
 {
     Ocean ocean(5, 5);
-    ocean.add_object(std::make_unique<Coral>(1), 2, 2);
+
+    auto coral_ptr = std::make_unique<Coral>(10, 2);
+    Coral* coral = coral_ptr.get();
+    
+    ocean.add_object(std::move(coral_ptr), 2, 2);
+
+    EXPECT_TRUE(coral->is_alive());
+
+    ocean.update();
+    EXPECT_TRUE(coral->is_alive());
+
+    ocean.update();
+    EXPECT_FALSE(coral->is_alive());
+}
+
+TEST(CoralTest, DoesNotReproduceIfReproductionTimeIsZeroOrNegative)
+{
+    Ocean ocean(5, 5);
+    
+    ocean.add_object(std::make_unique<Coral>(0, 5), 2, 2);
 
     ocean.update();
 
     int occupied = 0;
-    for (int y = 0; y < ocean.height(); ++y)
-    {
-        for (int x = 0; x < ocean.width(); ++x)
-        {
-            if (!ocean.cell(x, y).empty())
-                ++occupied;
+    for (int y = 0; y < ocean.height(); ++y) {
+        for (int x = 0; x < ocean.width(); ++x) {
+            if (!ocean.cell(x, y).empty()) ++occupied;
+        }
+    }
+    
+    EXPECT_EQ(occupied, 1);
+}
+
+TEST(CoralTest, ReproducesOnlyOnSpecificIntervals)
+{
+    Ocean ocean(5, 5);
+    
+    ocean.add_object(std::make_unique<Coral>(3, 10), 2, 2);
+
+    
+    ocean.update();
+    
+    int occupied_step1 = 0;
+    for (int y = 0; y < ocean.height(); ++y) {
+        for (int x = 0; x < ocean.width(); ++x) {
+            if (!ocean.cell(x, y).empty()) ++occupied_step1;
+        }
+    }
+    EXPECT_EQ(occupied_step1, 1);
+
+    ocean.update();
+    
+    ocean.update();
+    
+    int occupied_step3 = 0;
+    for (int y = 0; y < ocean.height(); ++y) {
+        for (int x = 0; x < ocean.width(); ++x) {
+            if (!ocean.cell(x, y).empty()) ++occupied_step3;
+        }
+    }
+    
+    EXPECT_EQ(occupied_step3, 2);
+}
+
+TEST(CoralTest, DoesNotReproduceWhenNoFreeNeighbors)
+{
+    Ocean ocean(3, 3);  
+    
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
+            ocean.add_object(std::make_unique<Coral>(100, 100), x, y);
         }
     }
 
-    EXPECT_EQ(occupied, 2);
+    ocean.add_object(std::make_unique<Coral>(1, 10), 1, 1);
+
+    ocean.update();
+
+    int occupied = 0;
+    for (int y = 0; y < ocean.height(); ++y) {
+        for (int x = 0; x < ocean.width(); ++x) {
+            if (!ocean.cell(x, y).empty()) ++occupied;
+        }
+    }
+    
+    EXPECT_EQ(occupied, 9);
 }
 
 
