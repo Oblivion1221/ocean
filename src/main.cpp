@@ -1,13 +1,9 @@
 #include "Config.h"
-#include "Coral.h"
-#include "Ocean.h"
-#include "Predator.h"
-#include "Prey.h"
 #include "Simulation.h"
-#include "Stone.h"
 
 #include <iostream>
-#include <memory>
+#include <string>
+#include <exception>
 
 int main(int argc, char *argv[])
 {
@@ -18,41 +14,18 @@ int main(int argc, char *argv[])
     {
         config_path = argv[1];
     }
+
     try
     {
         const SimulationConfig config = ConfigLoader::load(config_path);
 
-        Ocean ocean(config.ocean.width, config.ocean.height);
+        Simulation simulation(config);
 
-        // Example initial population.
-        // Make them random
-
-        ocean.add_object(std::make_unique<Stone>(), 2, 2);
-        ocean.add_object(std::make_unique<Coral>(
-            config.coral.reproduction_time), 5, 5);
-
-        // ocean.add_object(std::make_unique<Prey>(
-        //     config.prey.lifetime,
-        //     config.prey.reproduction_time), 8, 5);
-
-        // ocean.add_object(std::make_unique<Prey>(
-        //     config.prey.lifetime,
-        //     config.prey.reproduction_time), 9, 5);
-
-        // ocean.add_object(std::make_unique<Predator>(
-        //     config.predator.lifetime,
-        //     config.predator.reproduction_time,
-        //     config.predator.feeding_time), 10, 5);
-
-        Simulation simulation(std::move(ocean));
-
-        //TODO:
-        // Simulation simulation(config.simulation);
         simulation.run();
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error: " << e.what() << '\n';
+        std::cerr << "Fatal Error: " << e.what() << '\n';
         return 1;
     }
 
