@@ -21,3 +21,4 @@ private:
     int hunger_ = 0;
     bool alive_ = true;
 };
+
