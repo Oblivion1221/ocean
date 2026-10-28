@@ -5,7 +5,7 @@
 class Coral : public Object
 {
 public:
-    explicit Coral(int reproduction_time, int lifetime);
+    explicit Coral(int lifetime, int reproduction_time);
 
     void update(Ocean& ocean) override;
     char symbol() const override { return 'C'; }

@@ -3,9 +3,9 @@
 
 #include <random>
 
-Coral::Coral(int reproduction_time, int lifetime)
-    : reproduction_time_(reproduction_time)
-    , lifetime_(lifetime)
+Coral::Coral(int lifetime, int reproduction_time)
+    : lifetime_(lifetime)
+    , reproduction_time_(reproduction_time)
 {
 }
 
@@ -16,6 +16,7 @@ void Coral::update(Ocean& ocean)
     if(age_>= lifetime_)
     {
         alive_ = false;
+        ocean.remove_object(*this);
         return;
     }
 
@@ -23,6 +24,7 @@ void Coral::update(Ocean& ocean)
         return;
 
     const auto free = ocean.free_neighbors(x(), y());
+    
     if (free.empty())
         return;
 
@@ -33,5 +35,5 @@ void Coral::update(Ocean& ocean)
     size_t random_index = dist(gen);
 
     const auto [nx, ny] = free[random_index];
-    ocean.add_object(std::make_unique<Coral>(reproduction_time_, lifetime_), nx, ny);
+    ocean.add_object(std::make_unique<Coral>(lifetime_, reproduction_time_), nx, ny);
 }
