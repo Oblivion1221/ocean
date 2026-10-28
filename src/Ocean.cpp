@@ -16,6 +16,11 @@ std::mt19937& rng()
 }
 }
 
+Ocean::Ocean(const OceanConfig& cfg)
+    : Ocean (cfg.width, cfg.height)
+    {    
+    }
+
 Ocean::Ocean(int width, int height)
     : width_(width),
       height_(height),
@@ -43,44 +48,6 @@ const Cell& Ocean::cell(int x, int y) const
         throw std::out_of_range("Cell coordinates are out of bounds");
     return cells_[y][x];
 }
-
-
-// Explanation of unique ptrs
-//
-// {
-//     int *a = new int{}; // a = 0x00000004
-//     int *b = a;         // b = 0x00000004
-//     delete a;           // a = nullptr, b = 0x00000004
-//     print(b);           // BOOM! Segfault
-// }
-
-// {
-//     std::unique_ptr<int> b;         // b.ptr = nullptr
-//     {
-//         std::unique_ptr<int> a {new int{}}; // a.ptr = 0x00000004 {156}
-//         b = a;                              // b.ptr = 0x00000004
-//     }
-//     // b.ptr = 0x00000004
-//     // print(*b) // BOOM! Segfault
-
-//     // The second variant
-//     {
-//         std::unique_ptr<int> a {new int{}}; // a.ptr = 0x00000004 {156}
-//         b = a;                              // b.ptr = 0x00000008 {156}
-//     }
-//     // b.ptr = 0x00000008
-//     // print(*b) // OK!
-//     // But it's not okay! We don't want to allocate and copy objects!
-
-//     // Solution: move constructors, move assignment
-//     {
-//         std::unique_ptr<int> a {new int{}}; // a.ptr = 0x00000004 {156}
-//         b = std::move(a());                 // b.ptr = 0x00000004 {156}, a.ptr = nullptr
-//     }
-//     // b.ptr = 0x00000004
-//     // print(*b) // OK!
-// }
-
 
 void Ocean::add_object(std::unique_ptr<Object> object, int x, int y)
 {
@@ -168,8 +135,6 @@ std::vector<std::pair<int, int>> Ocean::free_neighbors(int x, int y) const
 
 void Ocean::update()
 {
-    // Snapshot prevents newly spawned objects from being updated
-    // in the same iteration.
     const std::size_t count = objects_.size();
 
     for (std::size_t i = 0; i < count && i < objects_.size(); ++i)
@@ -178,19 +143,18 @@ void Ocean::update()
             objects_[i]->update(*this);
     }
 
-    // 0. Было:
-    //    [1, 0, 1, 0, 1, 0, 0, 0, 1]
-    // 1. auto it = std::remove_if(objects_.begin(), objects_.end(),
-    //                  [](const std::unique_ptr<Object>& object)
-    //                  {
-    //                      return !object->is_alive();
-    //                  });
-    // 2. Стало:
-    //    [1, 1, 1, 1, 0, 0, 0, 0, 0]
-    //                it^
-    // 3. objects.erase(it, objects.end());
-    // 4. Стало
-    //    [1, 1, 1, 1]
+    for (const auto& object : objects_)
+    {
+        if (object && !object->is_alive())
+        {
+            const int x = object->x();
+            const int y = object->y();
+            if (in_bounds(x, y) && cell(x, y).object() == object.get())
+            {
+                cell(x, y).clear();
+            }
+        }
+    }
 
     objects_.erase(
         std::remove_if(objects_.begin(), objects_.end(),
@@ -200,7 +164,6 @@ void Ocean::update()
             }),
         objects_.end());
 
-    // TODO: clean unused cells
 }
 
 void Ocean::print(std::ostream& out) const
@@ -218,12 +181,47 @@ void Ocean::print(std::ostream& out) const
 
 bool Ocean::has_objects() const
 {
-    // TODO:
-    return true;
+    return !objects_.empty();
 }
 
 bool Ocean::has_only_one_type() const
 {
-    // TODO:
-    return true;
+    {
+    const Object* first_live_object = nullptr;
+    std::size_t start_index = 0;
+
+    const char stone_symbol = '#';
+
+    for (std::size_t i = 0; i < objects_.size(); ++i)
+    {
+        if (objects_[i] && objects_[i]->symbol() != stone_symbol) 
+        {
+            first_live_object = objects_[i].get();
+            start_index = i + 1;
+            break;
+        }
+    }
+
+    if (first_live_object == nullptr)
+    {
+        return false; 
+    }
+
+    for (std::size_t i = start_index; i < objects_.size(); ++i)
+    {
+        if (!objects_[i])continue;
+
+        if (objects_[i]->symbol() == stone_symbol)
+        {
+            continue;
+        }
+
+        if (typeid(*objects_[i]) != typeid(*first_live_object))
+        {
+            return false;
+        }
+    }
+
+    return true; 
+}
 }

@@ -16,9 +16,14 @@ SimulationConfig ConfigLoader::load(const std::string& filename)
 
     SimulationConfig config;
 
+    config.ocean.width = 
+        j.at("ocean").at("width").get<int>();
 
-    config.ocean.width = j.at("ocean").at("width").get<int>();
-    config.ocean.height = j.at("ocean").at("height").get<int>();
+    config.ocean.height = 
+        j.at("ocean").at("height").get<int>();
+
+    config.coral.lifetime = 
+        j.at("coral").at("lifetime").get<int>();
 
     config.coral.reproduction_time =
         j.at("coral").at("reproduction_time").get<int>();
@@ -28,6 +33,9 @@ SimulationConfig ConfigLoader::load(const std::string& filename)
 
     config.prey.reproduction_time =
         j.at("prey").at("reproduction_time").get<int>();
+        
+    config.prey.hunger_time = 
+        j.at("prey").at("hunger_time").get<int>();
 
     config.predator.lifetime =
         j.at("predator").at("lifetime").get<int>();
@@ -37,6 +45,18 @@ SimulationConfig ConfigLoader::load(const std::string& filename)
 
     config.predator.feeding_time =
         j.at("predator").at("feeding_time").get<int>();
+
+    config.stone_counts = 
+        j.at("simulation").at("stone_counts").get<int>();
+
+    config.coral_counts = 
+        j.at("simulation").at("coral_counts").get<int>();
+
+    config.prey_counts = 
+        j.at("simulation").at("prey_counts").get<int>();
+
+    config.predator_counts = 
+        j.at("simulation").at("predator_counts").get<int>();
 
     return config;
 }

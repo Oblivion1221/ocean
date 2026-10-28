@@ -1,25 +1,23 @@
 #pragma once
 
-#include "Ocean.h"
-#include "Config.h"
+    #include "Ocean.h"
+    #include "Config.h"
 
-#include <cstddef>
+    #include <cstddef>
 
-class Simulation
-{
-public:
-    // TODO:
-    // explicit Simulation(const SimulationConfig &ocean);
-    explicit Simulation(Ocean ocean);
+    class Simulation
+    {
+    public:
+        explicit Simulation(const SimulationConfig &cfg);
+        explicit Simulation(Ocean ocean);
 
-    void run();
+        void run();
 
-private:
-    // TODO:
-    // void init(const SimulationConfig &cfg);
-    void step();
-    bool should_stop() const;
+    private:
+        void init(const SimulationConfig &cfg);
+        void step();
+        bool should_stop() const;
 
-    Ocean ocean_;
-    std::size_t iteration_ = 0;
-};
+        Ocean ocean_;
+        std::size_t iteration_ = 0;
+    };
