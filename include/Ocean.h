@@ -12,8 +12,7 @@ class Object;
 class Ocean
 {
 public:
-    // TODO: add constructor config
-    // explicit Ocean(const OceanConfig &cfg);
+    explicit Ocean(const OceanConfig &cfg);
     
     Ocean(int width, int height);
 
@@ -43,3 +42,4 @@ private:
     std::vector<std::vector<Cell>> cells_;
     std::vector<std::unique_ptr<Object>> objects_;
 };
+

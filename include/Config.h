@@ -10,13 +10,15 @@ struct OceanConfig
 
 struct CoralConfig
 {
-    int reproduction_time = 5;
+    int lifetime = 20;
+    int reproduction_time = 3;
 };
 
 struct PreyConfig
 {
     int lifetime = 20;
     int reproduction_time = 5;
+    int hunger_time = 5;
 };
 
 struct PredatorConfig
@@ -32,6 +34,7 @@ struct SimulationConfig
     CoralConfig coral;
     PreyConfig prey;
     PredatorConfig predator;
+    int stone_counts = 1;
     int coral_counts = 4;
     int prey_counts = 4;
     int predator_counts = 4;

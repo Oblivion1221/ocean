@@ -5,11 +5,12 @@
     },
     "coral": {
         "lifetime": 20,
-        "reproduction_time": 5
+        "reproduction_time": 3
     },
     "prey": {
         "lifetime": 20,
-        "reproduction_time": 5
+        "reproduction_time": 5,
+        "hunger_time" : 5
     },
     "predator": {
         "lifetime": 30,
@@ -17,8 +18,10 @@
         "feeding_time": 5
     },
     "simulation": {
+        "stone_counts" : 1,
         "coral_counts" : 4,
         "prey_counts" : 4,
         "predator_counts" : 4
     }
 }
+
