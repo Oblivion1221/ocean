@@ -5,7 +5,7 @@
 class Prey : public Object
 {
 public:
-    Prey(int lifetime, int reproduction_time);
+    Prey(int lifetime, int reproduction_time, int hunger_time);
 
     void update(Ocean& ocean) override;
     char symbol() const override { return 'F'; }
@@ -15,7 +15,7 @@ private:
     int lifetime_;
     int reproduction_time_;
     int age_ = 0;
-    int reproduction_age_ = 0;
+    int hunger_ = 0;
     bool alive_ = true;
-    // TODO: int hunger_ = 0;
+    int hunger_time_ = 0;
 };

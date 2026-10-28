@@ -1,6 +1,8 @@
 #include "Prey.h"
 #include "Ocean.h"
 
+#include <vector>
+#include <random>
 #include <memory>
 
 Prey::Prey(int lifetime, int reproduction_time, int hunger_time)
@@ -12,43 +14,73 @@ Prey::Prey(int lifetime, int reproduction_time, int hunger_time)
 
 void Prey::update(Ocean& ocean)
 {
-    // TODO:
-    // │
-    // ├── increase age
-    // │
-    // ├── age >= lifetime || hunger >= hunger_time?
-    // │       └── die
-    // │
-    // ├── age == reprouduce_time
-    // |       └── try reproduce
-    // │
-    // ├── if a neighbor is coral ?
-    // |         └── eat coral, reset hunger
-    // └── try_move
     ++age_;
-    ++reproduction_age_;
     ++hunger_;
 
-    if(lifetime_ > 0 || age_ >= lifetime_)
+    if (age_ >= lifetime_ || hunger_ >= hunger_time_)
     {
-        ocean.cell(x(),y()).clear();
+        alive_ = false;
         return;
     }
 
-    if(hunger_time_ > 0 && hunger_ >= hunger_time_)
-    {
-        
-        return;
-    }
+    bool have_coral = false;
+    int current_x = x(), current_y = y();
 
-    if(reproduction_time_ > 0 && reproduction_age_ >= reproduction_time_ )
-    {
+    std::vector<std::pair<int, int>> environment = ocean.neighbors(x(), y());
 
-        if(ocean.free_neighbors(x(), y()))
+    for (const auto& [nx, ny] : environment)
+    {
+        Object* neighbor_obj =ocean.cell(nx, ny).object();
+
+        if (neighbor_obj && neighbor_obj->symbol() == 'C')
         {
-            ocean.add_obgect(* Object.prey, x(), y())
+            hunger_ = 0;      
+            have_coral = true;
+            ocean.remove_object(*neighbor_obj);
+            break;
+        }
+    }
+
+    if (!have_coral)
+    {
+        const auto free = ocean.free_neighbors(x(), y());
+        if (!free.empty())
+        {
+            static std::mt19937 gen(std::random_device{}());
+            std::uniform_int_distribution<size_t> dist(0, free.size() - 1);
+            const auto [nx, ny] = free[dist(gen)];
+            
+            ocean.move_object(*this, nx, ny);
+            current_x = nx;
+            current_y = ny;
         }
     }
     
-}
+    if (reproduction_time_ > 0 && age_ % reproduction_time_ == 0)
+    {
 
+        const auto free = ocean.free_neighbors(current_x, current_y);
+    
+        if (free.empty())
+        return;
+
+        static std::mt19937 gen (std::random_device{}());
+        std::uniform_int_distribution<size_t> dist(0, free.size() - 1);
+        size_t random_index = dist(gen);
+
+        const auto [nx, ny] = free[random_index];
+
+        ocean.add_object(std::make_unique<Prey>(lifetime_, reproduction_time_, hunger_time_), nx, ny);
+    }
+
+    const auto free = ocean.free_neighbors(current_x, current_y);
+
+    if (!free.empty())
+    {
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_int_distribution<size_t> dist(0, free.size() - 1);
+        const auto [nx, ny] = free[dist(gen)];
+            
+        ocean.move_object(*this, nx, ny);
+    }
+}
